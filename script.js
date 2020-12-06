@@ -39,12 +39,12 @@ class Running extends Workout {
     }
 
     calcPace() {
-        this.pace = this.duration / this.distance;
+        this.pace = (this.distance * 60) / this.duration;
     }
 };
 
-class Cycling extends Workout {
-    type = 'cycling'
+class Hiking extends Workout {
+    type = 'hiking'
 
     constructor(coords, distance, duration, elevationGain) {
         super(coords, distance, duration);
@@ -54,12 +54,10 @@ class Cycling extends Workout {
     }
 
     calcSpeed() {
-        this.speed = this.distance / (this.duration / 60);
+        this.speed = (this.distance * 60) / this.duration;
     }
 };
 
-const run1 = new Running([39, -12], 5.2, 24, 178)
-const cycling1 = new Cycling([49, -2], 27, 95, 523)
 
 ////////////////////////////////////////////////////////////////////
 // APPLICATION
@@ -137,7 +135,7 @@ class App {
 
         e.preventDefault();
 
-        // get data from form // running or cycling
+        // get data from form // running or hiking
         const type = inputType.value;
         const distance = +inputDistance.value;
         const duration = +inputDuration.value;
@@ -157,8 +155,8 @@ class App {
 
         }
 
-        // if cyclcing create cycling
-        if (type === 'cycling') {
+        // if hiking create hiking
+        if (type === 'hiking') {
 
             const elevation = +inputElevation.value;
 
@@ -166,7 +164,7 @@ class App {
             if (!validInputs(distance, duration, elevation) || !allPositive(distance, duration))
                 return alert('All inputs must be positive numbers')
 
-            workout = new Cycling([lat, lng], distance, duration, elevation);
+            workout = new Hiking([lat, lng], distance, duration, elevation);
         }
 
         // add new object tow workout array
@@ -199,7 +197,7 @@ class App {
                     closeOnClick: false,
                     className: `${workout.type}-popup`,
                 }))
-            .setPopupContent(`${workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'} ${workout.description}`)
+            .setPopupContent(`${workout.type === 'running' ? '🏃‍♂️' : '⛰'} ${workout.description}`)
             .openPopup();
 
         const removePopupBtn = document.querySelectorAll('.leaflet-popup-close-button')
@@ -212,9 +210,9 @@ class App {
         <li class="workout workout--${workout.type}" data-id="${workout.id}">
             <h2 class="workout__title">${workout.description}</h2>
             <div class="workout__details">
-                <span class="workout__icon">${workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'} </span>
+                <span class="workout__icon">${workout.type === 'running' ? '🏃‍♂️' : '⛰'} </span>
                 <span class="workout__value">${workout.distance}</span>
-                <span class="workout__unit">km</span>
+                <span class="workout__unit">miles</span>
             </div >
             <div class="workout__details">
                 <span class="workout__icon">⏱</span>
@@ -227,26 +225,26 @@ class App {
             <div class="workout__details">
                 <span class="workout__icon">⚡️</span>
                 <span class="workout__value">${workout.pace.toFixed(1)}</span>
-                <span class="workout__unit">min/km</span>
+                <span class="workout__unit">mph</span>
             </div>
             <div class="workout__details">
-                <span class="workout__icon">🦶🏼</span>
+                <span class="workout__icon">${workout.cadence > 5 ? '😵' : '😊'}</span>
                 <span class="workout__value">${workout.cadence}</span>
-                <span class="workout__unit">spm</span>
+                <span class="workout__unit">/ 10</span>
             </div>
         </li>`;
 
-        if (workout.type === 'cycling')
+        if (workout.type === 'hiking')
             html += `
             <div class="workout__details">
               <span class="workout__icon">⚡️</span>
               <span class="workout__value">${workout.speed.toFixed(1)}</span>
-              <span class="workout__unit">km/h</span>
+              <span class="workout__unit">mph</span>
             </div>
             <div class="workout__details">
-              <span class="workout__icon">⛰</span>
+              <span class="workout__icon">${workout.elevationGain > 0 ? '📈' : '📉'}</span>
               <span class="workout__value">${workout.elevationGain}</span>
-              <span class="workout__unit">m</span>
+              <span class="workout__unit">ft</span>
             </div>
           </li>`;
 
